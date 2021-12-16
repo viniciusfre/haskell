@@ -8,7 +8,7 @@ quadrado x = x * x
 
 --Faz a média dos valores a e b
 media :: Float -> Float -> Float
-media a b = (a + b) / 2.0
+media a b = (a + b) / 2
 
 --Calcula área do retângulo
 -- c comprimento/ l largura

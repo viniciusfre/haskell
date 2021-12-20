@@ -26,5 +26,5 @@ inicio x = reverse(tail(reverse x)) --lleksah
 --('H','C')
 nome :: String -> String -> (Char,Char) 
 nome x y = (head x , head y)
---
+
 

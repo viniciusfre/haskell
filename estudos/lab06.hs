@@ -79,4 +79,4 @@ soma n
     |otherwise = n +(soma n-1)
     --3 + (soma 2)
     --3 + (2 + soma 1)
-    --3 + (2 + 1 + 
+    --3 + (2 + 1 +

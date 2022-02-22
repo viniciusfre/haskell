@@ -1,3 +1,5 @@
+import Data.Char
+
 cab :: [Int] -> Int
 cab (x:_) = x
 
@@ -195,9 +197,11 @@ impares (x:y)
 Se o elemento ja existir, pode inseri-lo depois de sua ocorrência.
 -}
 insere :: Int -> [Int] -> [Int]
-insere w (x:y:z)
-    |w >= x && w <= y = x : w : y : z
-    |otherwise = x : (insere w (y:z))
+insere x [] = [x]
+insere x (y:z)
+    |x == y = y : x : z
+    |x < y = x : (y:z)
+    |otherwise = y : insere x z
 {-(r) Calcular o quadrado de cada elemento da lista, ex:
 > quadrado [3 ,14 ,1 ,5 ,9]
 [9 ,196 ,1 ,25 ,81]
@@ -230,22 +234,18 @@ de cada tupla, ex:
 > primeiros [(3 ,14) ,(1 ,5) ,(9 ,1)]
 [3 ,1 ,9]
 -}
---primeiros :: [(Int)] -> [Int]
---primeiros (x:y)
-  --  |y == [] = (x) : []
- --   |otherwise = (fst x) : (primeiros y)
---primeiros [(3 ,14) ,(1 ,5) ,(9 ,1)]
---3 : 1 : 9 : []
-
+primeiros :: [(Int,Int)] -> [Int]
+primeiros [] = []
+primeiros (x:y)
+    |otherwise = [fst x] ++ (primeiros y)
 {-(v) Dada uma lista de listas, concatenar todas as sub-listas em uma unica lista, ex:
 > concatenar [[3 ,14 ,1 ,5] ,[9 ,1 ,2]]
 [3 ,14 ,1 ,5 ,9 ,1 ,2]
 -}
---concatenar :: [[Int]] -> [Int]
---concatenar (x:y)
---    |y == [] = x
---    |otherwise = x : (concatenar y)
-
+concatenar :: [[Int]] -> [Int]
+concatenar [] = []
+concatenar (x:y)
+    |otherwise = x ++ (concatenar y)
 {-(w) Dadas duas listas de mesmo tamanho, obter uma terceira lista, representando a diferença
 absoluta entre as listas dadas, ex:
 > diferenca [1, 3, 2, 8] [2, 5, 6, 8]
@@ -263,19 +263,36 @@ e os mesmos elementos, ex:
 > iguais [1, 3, 2, 8] [1, 3, 2, 8]
 True
 -}
---iguais :: [Int] -> [Int] -> Bool
---iguais (w:x) (y:z)
---    |w /= iguais w z = False
- --   |otherwise = True
+iguais :: [Int] -> [Int] -> Bool
+iguais [] [] = True
+iguais (w:x) (y:z)
+    |w /= y = False
+    |(tamanho x) /= (tamanho z) = False
+    |otherwise = (iguais x z)
 {-(y) Dada uma lista de numeros reais, calcular a média aritmética dos elementos, ex:
 > media [3.0 , 1.4 , 1.0]
 1.8
 -}
---media :: [Float] -> Float
---media (x:y)
---    |y == [] = x
- --   |otherwise = ((x) + (media y))/fromIntegral(comprimento y)
+soma_media :: [Double] -> Double
+soma_media [] = 0
+soma_media (x:y)
+    |otherwise = x + (soma_media y)
 
+comp_media :: [Double] -> Double
+comp_media [] = 0
+comp_media (x:y)
+    |otherwise = 1 + (comp_media y)
+
+media :: [Double] -> Double
+media [] = 0
+media z
+    |otherwise = soma_media z / comp_media z
+
+--media [3.0 , 1.4 , 1.0]
+--3 / ((media [1.4,1.0])+1)
+--3 + 1.4 / ((media [1.0])+1+1)
+--3 + 1.4 + 1.0 / ((media [])1+1+1)
+--3 + 1.4 + 1.0 / 0+1+1+1)
 {-(z) Dado um inteiro n, devolva a lista de todos os numeros inteiros ímpares entre 1 e n,
 ex:
 > lista_impares 9
@@ -308,20 +325,41 @@ uniao (w:x) (y:z)
     |otherwise = [w] ++ [y] ++ (uniao x z)
 {-
 (c) inter: dados dois conjuntos, fornece a intersecção deles, ex:
-> inter [1 ,3 ,5] [1 ,2 ,3 ,4]
+> inter [1 ,3,5] [1,2,3,4]
 [1 ,3]
 -}
+inter :: [Int] -> [Int] -> [Int]
+inter (x:y) z
+    |y == [] && pertence x z = [x]
+    |y == [] = []
+    |pertence x z = x : (inter z y)
+    |otherwise = (inter y z)
+--Precisa comparar o primeiro termo da primeira com todos os elementos da segunda, se não encontrar nenhum termo igual, tirar fora o primeiro termo e não inclui-lo se encontrar, inclui-lo.
 {-
 (d) diff: dados dois conjuntos, fornece a diferenc¸a deles, ex:
-> diff [1 ,3 ,5] [1 ,2 ,3 ,4]
+> diff [1,3,5] [1 ,2 ,3 ,4]
 [2 ,4 ,5]
 -}
-
+diff :: [Int] -> [Int] -> [Int]
+diff x z = (diff' x z) ++ (diff' z x)
+     
+diff' :: [Int] -> [Int] -> [Int]
+diff' (x:y) z
+    |y == [] && pertence x z = []
+    |y == [] = [x]
+    |pertence x z = (diff' y z)
+    |otherwise = x:(diff' y z)
 {-
 (e) subc: dados dois conjuntos, diz se o primeiro e subconjunto do segundo, ex:
 > sub_conjunto [2 ,4 ,6] [1 ,2 ,3 ,4 ,5 ,6 ,7 ,8]
 True
 -}
+sub_conjunto :: [Int] -> [Int] -> Bool
+sub_conjunto (x:y) z
+    |y == [] && pertence x z = True
+    |y == [] = False
+    |pertence x z = (sub_conjunto y z)
+    |otherwise = False
 
 {-
 (f) interc: intercalar dois conjuntos de mesmo tamanho em um terceiro conjunto, ex:
@@ -329,23 +367,49 @@ True
 [1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10]
 Nao se esqueçaa de declarar corretamento os tipos de cada função.
 -}
+insere' :: Int -> [Int] -> [Int]
+insere' n [] = [n] 
+insere' n (x:xs)
+    |n < x = n:x:xs
+    |n == x = x:xs
+    |otherwise = x:(insere' n xs)
+
+ordena :: [Int] -> [Int]
+ordena [] = []
+ordena (x:y) = insere' x (ordena y)   
+
+intercala :: [Int] -> [Int] -> [Int]
+intercala [] [] = []
+intercala x y = ordena (x++y)
 
 {-
 4. No modulo Char encontramos a função toUpper que converte uma letra minuscula na sua
 correspondente maiuscula.
 (a) Crie uma função recursiva maius que converte todas as letras de uma palavra em maiusculas;
 -}
-
+maius :: [Char] -> [Char]
+maius (x:y)
+    |y == [] && x /= toUpper x = [toUpper x]
+    |y == [] = [x]
+    |x == toUpper x = x : maius y
+    |otherwise= [toUpper x] ++ (maius y)
 {-
 (b) Usando a função isAlpha, tambem do módulo Char, refaça a função maius para
 descartar símbolos e numeros;
 -}
-
+maius' :: [Char] -> [Char]
+maius' [] = []
+maius' (x:y)
+    |isAlpha x = toUpper x : (maius' y)
+    |otherwise = (maius' y)
 {-
 (c) Fac¸a uma nova função que recebe uma palavra e devolve em tupla a palavra original e a sua
 correspondente escrita em maiuscula.
 OBS: Para importar o modulo Char usa-se import Data.Char, no seu arquivo fonte 
 -}
+fac :: [Char] -> ([Char],[Char])
+fac [] = ([],[])
+fac (x:y) = ((x:y),maius(x:y))
 
 {-
 5. Considere uma lista de numeros inteiros como entrada de uma função. A função retorna
@@ -357,7 +421,13 @@ Exemplos:
 [1,3,2,1] nao é alternante
 [2,1,4,3,5,4] nao é alternante
 -}
-
+alternante :: [Int] -> Bool
+alternante [] = False
+alternante (x:y)
+    |y == [] = True
+    |x `mod` 2 == 0 && (head y) `mod` 2 == 0 = False
+    |x `mod` 2 /= 0 && (head y) `mod` 2 /= 0 = False
+    |otherwise = (alternante y)
 {-
 6. A representação binária de um número consiste em realizar sucessivas divisoes deste numero por
 2 e imprimir do ultimo para o primeiro, todos os restos das divisões.
@@ -368,17 +438,34 @@ Implemente a função onverte :: Int -> [Int], ex:
 > converte 23
 [1 ,0 ,1 ,1 ,1]
 -}
-
+converte :: Int -> [Int]
+converte x
+    |x  == 0 = []
+    |otherwise = converte (x`div`2) ++ [(x `mod` 2)]
 {-
 7. Escreva uma função que dada uma lista com 0s e 1s, representando um número binário, calcule
 seu correspondente na forma decimal.
 > converte [1 ,0 ,1 ,1 ,1]
 23
 -}
+tamanho :: [Int] -> Int
+tamanho [] = 0
+tamanho (x:y)
+    |otherwise = (tamanho y) + 1
+
+converte_reverso :: [Int] -> Int
+converte_reverso [] = 0
+converte_reverso (x:y)
+    |x == 0 = (converte_reverso y)
+    |otherwise = (converte_reverso y) + (2 ^ (tamanho y))
 
 {-8. Implemente uma função que tem como entrada um número inteiro e que retorna uma lista com
 cada dígito do numero separadamente. Dica: parte inteira e resto da divisão por 10.
 Exemplo:
 > digitos 1234
-[1, 2
+[1,2,3,4]
 -}
+digitos :: Int -> [Int]
+digitos x
+    |x == 0 = []
+    |otherwise = digitos (x `div` 10) ++ [x `mod` 10]

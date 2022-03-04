@@ -388,11 +388,15 @@ correspondente maiuscula.
 (a) Crie uma função recursiva maius que converte todas as letras de uma palavra em maiusculas;
 -}
 maius :: [Char] -> [Char]
+maius [] = []
 maius (x:y)
-    |y == [] && x /= toUpper x = [toUpper x]
-    |y == [] = [x]
-    |x == toUpper x = x : maius y
-    |otherwise= [toUpper x] ++ (maius y)
+    |letra x = (toUpper x) : (maius y)
+    |otherwise = (maius y)
+
+letra :: Char -> Bool
+letra x
+    |x >= 'a' && x <= 'z' || x >= 'A' && x <= 'Z' = True
+    |otherwise = False
 {-
 (b) Usando a função isAlpha, tambem do módulo Char, refaça a função maius para
 descartar símbolos e numeros;
@@ -400,7 +404,7 @@ descartar símbolos e numeros;
 maius' :: [Char] -> [Char]
 maius' [] = []
 maius' (x:y)
-    |isAlpha x = toUpper x : (maius' y)
+    |isAlpha x = (toUpper x) : (maius' y)
     |otherwise = (maius' y)
 {-
 (c) Fac¸a uma nova função que recebe uma palavra e devolve em tupla a palavra original e a sua
